@@ -2,7 +2,7 @@
 
 ## Scope
 
-An order/table management system for a [casual dining](https://en.wikipedia.org/wiki/Types_of_restaurant#Casual_dining)https://en.wikipedia.org/wiki/Types_of_restaurant#Casual_dining restaurant that is intended to optimise the restuaurant's food-serving operations.
+An order/table management system for a [casual dining](https://en.wikipedia.org/wiki/Types_of_restaurant#Casual_dining) restaurant that is intended to optimise the restuaurant's food-serving operations.
 
 The real-life quantity or metric that the app attempts minimize is the time it takes from the moment the customer is seated until they are served, called the _sit-to-serve time_.
 
