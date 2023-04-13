@@ -2,44 +2,59 @@
 
 ## Scope
 
-An order/table management system for a restaurant that is intended to enhance and increase the efficiency of restuaurant operations (and hence perceived service at the intended level of service of the retaurant type).
+An order/table management system for a [casual dining](https://en.wikipedia.org/wiki/Types_of_restaurant#Casual_dining)https://en.wikipedia.org/wiki/Types_of_restaurant#Casual_dining restaurant that is intended to optimise the restuaurant's food-serving operations.
 
-The real-life quantity that the app will try to help minimize is the "sit-to-serve time".
-
-This is the time it takes for a customer to have their food served, from the moment they sit at a table in a restaurant.
+The real-life quantity or metric that the app attempts minimize is the time it takes from the moment the customer is seated until they are served, called the _sit-to-serve time_.
 
 ### Core Mission
 
-The core mission of the application is to manage the lifecycle of the order.
+The core mission of the application is to manage the lifecycle of the order items.
 
-An order is "placed" when the customer orders food, it is "ready" when the food had been prepared, and it is "served" when it is at the table.
+An order item is "placed" when the customer orders a menu item, it is "ready" when the item has been prepared, and it is "served" when it is at the table (the terminal and desired end state for such an item).
+
 ### Side Mission
 
-An important side mission of the application is to manage the lifecycle of the table.
+An important side mission of the application is to manage the lifecycle of tables.
 
-A table is "opened" when someone or a group of people make one or more orders from the table, and "closed" when the people leave the table and the bill is paid.
+A table is "idle" when it is available for customers, it is "occupied" when there are people by it, "needs cleaning" when it is no longer occupied but needs cleaning, etc.
+
+It is unclear if the design should support bookings, at this stage, in which case more states will be required.
 
 ## Background
 
-The "sit-to-serve time" is composed of:
+The _sit-to-serve time_ is composed of:
 1. The time it takes for the customer to have access to a waiter/waitress for ordering
-2. The time it takes the waiter/waitress to let the kitchen/bar know of the order
-3. The time it takes for the kitchen/bar to make the food/drink
-4. The time it takes after the food/drink is made until it is picked up and delivered to the right table/place
+2. The time it takes the waiter/waitress to decide the menu item that needs to be ordered
+3. The time it takes for the order item information to be transmitted to the right production stations
+4. If the production station is able to fullfill the order, then the remaining breakdown is:
+  - The time it takes for the production station to make the food/drink
+  - The time it takes for the order item to be picked up and delivered to the table
+5. If the production station is unable to fullfill the order, then the remaining breakdown is:
+  - The time it takes for the production station to communicate the inability to fulfill the order item to the waiter/waitress
+  - The time it takes for the waiter/waitress to communicate this to the customer and decide what to do next
+  - If the customer decided not to order anything as a result, the breakdown stops here.
+  - If a new order item is requested instead, which can be fulfilled, then the remaining breakdown is:
+    * The time it takes for the production station to make the food/drink
+    * The time it takes for the order item to be picked up and delivered to the table
+  - If a new order item is requested instead, which also cannot be fulfilled, then the remaining breakdown is recursive and unpredictable, and basically follows the breakdown of point (5) above.
 
 ## Approach
 
 We agreed to try to solve problems in the domain, and understand that some discussions in the team will target restaurant operations, rather not just coding and fullstack development.
 
-### Service variations
+### Restaurant type
 
-1. How are the tables indicated in the restaurants (for example, do the restaurant use table numbers? do they change? do they become irrelevant when moving tables)
-2. How orders are placed, do the customer wait for the waiter/waitress to attend to them at the table vs. the customer approaching
-3. How is the food/drink delivered to the table, is it served by runners/waiters or is the customer called to pick up the food (e.g. using a special device)
+Considering the many variations in restaurant types and service, which are nicely explained [on Wikipedia](https://en.wikipedia.org/wiki/Types_of_restaurant). We chose to target the _casual dining_ (also called the sit-down restaurant) type, for being a representative of the most common type of restaurant encountered.
+
+This assumption will simplify a lot of the design decisions and make it possible to build a relevant MVP (more on this next).
 
 ### Implementation strategy
 
-In the first phase we aim solely for an MVP (_Minimum Viable Product_) meaning that anything that does not fit the core mission statement above will be dropped initially until a fully functional, but a minimal, application is achieved.
+In the first phase we aim solely for an MVP (a _Minimum Viable Product_) meaning that anything that does not fit the core mission statement above will be dropped initially until a fully functional, but a minimal, application is achieved.
+
+### Cloud-based vs. LAN-based
+
+TODO: on-going discussion
 
 ## Design
 
@@ -55,7 +70,27 @@ _TODO: who will use this application_
 
 ### Order States
 
-_TODO: using a state diagram in markdown and later using an XSTATE library visualizer_
+_TODO: do we need a state machine for the order itself? probably not_
+
+### Order-item States
+
+```mermaid
+stateDiagram-v2
+state "ITEM ORDERED" as ordered
+state "ITEM IN PREPARATION" as prepared
+state "ITEM READY" as ready
+state "ITEM SERVED" as served
+state "ITEM PAYED FOR" as payed
+
+[*] --> ordered
+ordered --> prepared : station accepts
+ordered --> [*] : customer cancels item order
+prepared --> ready
+ready --> served : runner delivers the item
+served --> payed
+payed --> [*]
+ordered --> ordered : station declines and new order item is negotiated
+```
 
 ### Table States
 
