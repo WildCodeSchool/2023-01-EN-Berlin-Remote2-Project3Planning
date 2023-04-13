@@ -84,14 +84,15 @@ state "ITEM PAYED FOR" as payed
 state "ITEM REJECTED" as rejected
 
 [*] --> ordered
+ordered --> rejected : station declines
+rejected --> ordered : new item is negotiated
+rejected --> [*] : order is cancelled
 ordered --> prepared : station accepts
 ordered --> [*] : customer cancels item order
 prepared --> ready
 ready --> served : runner delivers the item
 served --> payed
 payed --> [*]
-ordered --> rejected : station declines
-rejected --> ordered : customer is informed and new item is negotiated
 ```
 
 ### Table States
