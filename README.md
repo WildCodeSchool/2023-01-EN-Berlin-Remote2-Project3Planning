@@ -81,6 +81,7 @@ state "ITEM IN PREPARATION" as prepared
 state "ITEM READY" as ready
 state "ITEM SERVED" as served
 state "ITEM PAYED FOR" as payed
+state "ITEM REJECTED" as rejected
 
 [*] --> ordered
 ordered --> prepared : station accepts
@@ -89,7 +90,8 @@ prepared --> ready
 ready --> served : runner delivers the item
 served --> payed
 payed --> [*]
-ordered --> ordered : station declines and new order item is negotiated
+ordered --> rejected : station declines
+rejected --> ordered : customer is informed and new item is negotiated
 ```
 
 ### Table States
