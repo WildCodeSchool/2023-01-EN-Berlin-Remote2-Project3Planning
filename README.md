@@ -85,8 +85,8 @@ state "ITEM REJECTED" as rejected
 
 [*] --> ordered
 ordered --> rejected : station declines
-rejected --> ordered : new item is negotiated
-rejected --> [*] : order is cancelled
+rejected --> ordered : new item is ordered instead
+rejected --> [*] : customer cancels item order
 ordered --> prepared : station accepts
 ordered --> [*] : customer cancels item order
 prepared --> ready
